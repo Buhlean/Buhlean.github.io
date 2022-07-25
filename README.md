@@ -1,5 +1,5 @@
-# [FlowGraph Webdemo](Buhlean.github.io)
-[Webdemo](Buhlean.github.io) for my graph layout program. Written in C, it compiles Mermaid flowcharts.
+# [FlowGraph Webdemo](https://buhlean.github.io/)
+[Webdemo](https://buhlean.github.io/) for my graph layout program. Written in C, it compiles Mermaid flowcharts.
 
 
 Made by Alexander Buhl.
