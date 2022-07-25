@@ -110,8 +110,6 @@ struct globals{
 };
 static struct globals *g = { 0 };
 
-
-// @VOLATILE: init_menu() and associated MACROS are closely tied to this
 struct menu{
   char name[MENU_NAME_LENGTH];
   int entry_count;
@@ -211,7 +209,6 @@ struct Connection{
   enum CONNECTION_TYPE conn_type;
   char *text;
   int   text_length;
-  //style
 };
 
 struct remember_graph_info{

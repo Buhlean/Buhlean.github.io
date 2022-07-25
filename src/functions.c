@@ -5,16 +5,6 @@ static void mymemzero(void *p, int size){
     ((unsigned char *)p)[i] = 0;
   }
 }
-/* static void TextCopyN(char *dst, const char *src, int length){
-  if (dst != NULL){
-    for(int i = 0; i < length; i++){
-      *dst = *src;
-      dst++;
-      src++;
-    }
-    *dst = '\0';
-  }
-} */
 static Vector2 Vector2Clamp(Vector2 value, Vector2 min, Vector2 max)
 {
     Vector2 result = (Vector2){(value.x < min.x)? min.x : value.x, (value.y < min.y)? min.y : value.y};
@@ -171,152 +161,6 @@ static void menu_rightclick_init(){
 }
 #undef NODE
 #undef LEAF
-static Vector2 menu_measure_labels_up_to(int which){
-  Vector2 result = {0,0};
-  Assert(which <= state->top_menu[0].entry_count);
-  for(int i = 1; i < which; i++){
-    result = Vector2Add(result, MeasureTextEx(font, state->top_menu[i].name, g->font_size_menu_entry, 0));
-  }
-  return result;
-}
-static Vector2 menu_measure_entry_label(){
-  Vector2 result = {0,0};
-  Assert(state->menu_array_count > 2);
-  Assert(state->top_menu[1].entry_count >= 1);
-  int first_menu_index = state->top_menu[1].sub_menu_index;
-  struct menu first_entry = state->top_menu[first_menu_index];
-  //if(debug_switch) {TraceLog(LOG_DEBUG, "%d, %s", first_menu_index, first_entry.name);}
-  result = MeasureTextEx(font, first_entry.name, g->font_size_menu_entry, 0);
-  return result;
-}
-static void menu_click_do_something(int functionality_index){
-  switch(functionality_index){
-    case 101:{
-      TraceLog(LOG_INFO, "Open File");
-    };break;
-    case 102:{
-      TraceLog(LOG_INFO, "Save");
-    };break;
-    case 103:{
-      TraceLog(LOG_INFO, "Save as...");
-    };break;
-    case 199:{
-      TraceLog(LOG_INFO, "Exit via menu");
-      exit(0);
-    };break;
-
-    default: TraceLog(LOG_DEBUG, "FORGOT FUNCTIONALITY: %d", functionality_index);break;
-  }
-  
-  state->menu_tab_current    =  0;
-  state->menu_layer3_current =  0;
-  state->hover               = -1;
-  state->clicked             = -1;
-  state->dragged             = -1;
-  
-}
-
-/* static Rectangle rectangle_scale_size(Rectangle rec, float scale){
-  Rectangle result = {rec.x, rec.y, rec.width * scale, rec.height * scale};
-  return result;
-} */
-/* static Rectangle rectangle_scale_position(Rectangle rec, float scale){
-  Rectangle result = {rec.x * scale, rec.y * scale, rec.width, rec.height};
-  return result;
-} */
-/* static Rectangle rectangle_scale_all(Rectangle rec, float scale){
-  Rectangle result = {rec.x * scale, rec.y * scale, rec.width * scale, rec.height * scale};
-  return result;
-} */
-
-/* static Rectangle icon_atlas_get_icon(int icon_index, struct TextureAtlas ia){
-  Rectangle result = {
-    (icon_index % ia.atlas_width) * ia.pixel_width,
-    (icon_index / ia.atlas_width) * ia.pixel_height,
-    ia.pixel_width,
-    ia.pixel_height,
-  };
-  return result;
-} */
-/* static struct window *window_make_empty(struct tab *tab, int type){
-  struct window w = {type, 0};
-  arrput(tab->windows, w);
-  return &(tab->windows[arrlen(tab->windows)-1]);
-} */
-/* static struct window *window_get_by_type(struct tab *tab, int type){
-  struct window *result = NULL;
-  for(int i = 0; i < arrlen(tab->windows); i++){
-    if(tab->windows[i].type == type){
-      result = &(tab->windows[i]);
-      break;
-    }
-  }
-  if(!result){
-    result = window_make_empty(tab, type);
-  }
-  return result;
-} */
-/* static void draw_spritesheet_dialog(int x, int y, int w, int h){
-  
-  int type = WIN_SPRITESHEET;
-  struct window *window = window_get_by_type(&(tabs[state->tab_current]), type);
-  
-  Vector2 mouse_pos = GetMousePosition();
-  Rectangle parent = {x, y, w, h};
-  Rectangle child = parent;
-  
-  // heading
-  {
-    char *text = "Import Mask from Spritesheet";
-    float size = g->font_size_dialog_heading;
-    Vector2 text_measure = MeasureTextEx(font, text, size, 0);
-    DrawRectangle(x, y, w, 24, BLACK);
-    DrawTextEx(font, text, (Vector2){child.x + 3, child.y + 5}, size, 0, palette[TEXT_ACTIVE]);
-    float to_remove = text_measure.y + 10;
-    child.y      += to_remove;
-    child.height -= to_remove;
-  }
-  
-  // bg 
-  DrawRectangleRec(child, palette[BORDER]);
-  child = minus_padding(child, 10);
-  parent = child;
-  
-  {
-    char *text = "Comprised of several spritesheets";
-    float size = g->font_size_dialog;
-    Vector2 text_measure = MeasureTextEx(font, text, size, 0);
-    DrawTextEx(font, text, (Vector2){child.x + g->padding + text_measure.y, child.y + 1}, size, 0, palette[TEXT_ACTIVE]);
-    
-    Rectangle collider = {child.x, child.y, text_measure.y, text_measure.y};
-    DrawRectangleLinesEx(collider, 1, palette[TEXT_ACTIVE]);
-    
-    int element = 0;
-    if(CheckCollisionPointRec(mouse_pos, collider)){
-      state->hover = WIDGETS_WINDOWS + type*100 + element;
-      if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-        state->clicked = WIDGETS_WINDOWS + type*100 + element;
-      }
-      if(IsMouseButtonReleased(MOUSE_BUTTON_LEFT)){
-        if(state->clicked == state->hover && state->hover != -1){
-          window->state[element] = !window->state[element];
-        }
-        state->clicked = -1;
-      }
-    }
-    
-    const int inset = 3;
-    if(window->state[element]) DrawRectangle(child.x + inset, child.y + inset, text_measure.y - inset*2, text_measure.y - inset*2, palette[HIGHLIGHT]);
-    
-    float to_remove = text_measure.y + g->padding;
-    child.y      += to_remove;
-    child.height -= to_remove;
-  }
-  {
-    
-  }
-} */
- 
 
 // Draw text using font inside rectangle limits with support for text selection
 // Figures out where the caret should be placed while doing that and returns it as an index
@@ -474,6 +318,7 @@ static int DrawTextBoxed(Font font, const char *text, Rectangle rec, float font_
   
   return new_caret_index;
 }
+// modified to make dealing with various glyph sizes easier (due to monospaced font)
 static int DrawTextBoxedMono(Font font, const char *text, Rectangle rec, float font_size, 
                         float spacing, bool word_wrap, Color tint, 
                         int caret_index, bool caret_draw, Vector2 caret_new_pos, 
@@ -497,6 +342,7 @@ static int DrawTextBoxedMono(Font font, const char *text, Rectangle rec, float f
   int line_end = -1;           // Index where to stop drawing (where a line ends)
   int last_k = -1;             // Holds last value of the character position
   
+  // pulling out the glyph measuring out of the loop
   int codepoint_byte_count = 0;
   int glyph_index = GetGlyphIndex(font, GetCodepoint(&text[0], &codepoint_byte_count));
   float glyph_width = spacing + ((font.glyphs[glyph_index].advanceX == 0) ? font.recs[glyph_index].width*scale_factor : font.glyphs[glyph_index].advanceX*scale_factor);

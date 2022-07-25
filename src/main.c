@@ -28,7 +28,6 @@
   #define Assert(c) 
   #define AssertS(c,s) 
   #define AssertSI(c,s,i) 
-
 #else
   #define Assert(c) if(!(c)){TraceLog(LOG_WARNING,"%s,%d",__FILE__,__LINE__);exit(24);}
   #define AssertS(c,s) if(!(c)){TraceLog(LOG_WARNING,"%s,%d: %s",__FILE__,__LINE__,s);exit(25);}
@@ -42,50 +41,9 @@
 #include "compiler.c"
 #include "renderer.c"
 
-//#define PLATFORM_WEB
 #if defined(PLATFORM_WEB)
   #include <emscripten/emscripten.h>
 #endif
-
-/* TODO: (20220617)
-  
-  COPMPILER:
-    store tab-width in Token and compare with 'end' for better errors
-  RENDER:                                 
-    screenshot:                           
-      only graph                          CHECK 
-    mode:                                 
-      light                               CHECK
-      dark                                CHECK
-    directions:                           
-      TB/BT                               CHECK
-      LR/RL                               CHECK 
-      CE/EC                               -
-    shapes:                               
-      BUBBLE_STANDARD,                    
-      BUBBLE_RECTANGLE,   // [___]        
-      BUBBLE_ROUNDED,                     
-      BUBBLE_TRAPEZOID,   // /___\ .      
-      BUBBLE_TRAPEZOID_R, // \___/ .      
-      BUBBLE_FSLANTED,    // /___/ .      
-      BUBBLE_BSLANTED,    // \___\ .      
-      BUBBLE_CIRCLE,                      CHECK
-      BUBBLE_CYLINDER,    //database      
-      BUBBLE_SUBROUTINE,                  
-      BUBBLE_STADIUM,     // (___)        
-      BUBBLE_HEXAGON,                     
-      BUBBLE_RHOMBUS,                     
-    connections:                          
-      CT_LINE_THICK,                      
-      CT_LINE_DOTTED,                     
-      CT_ARROW,                           
-      CT_ARROW_THICK,                     
-      CT_ARROW_DOTTED,                    
-      CT_BIDIR,                           
-      CT_BIDIR_THICK,                     
-  
-*/
-
 
 //-----------------------------------------------------------------------------
 //--MAIN-----------------------------------------------------------------------
@@ -108,17 +66,14 @@ int main(){
   SetTraceLogLevel(LOG_ALL);
 #endif
 
-
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(g->width, g->height, "Flowgraph");
-  
   
 #if defined(PLATFORM_WEB)
   
 #else
 	SetTargetFPS(FPS_GOAL);
 #endif
-  
   
 	font_mono = LoadFontEx("./resources/CourierNewBold.ttf", 16, NULL, 0);
   font = LoadFontEx("./resources/CourierNewBold.ttf", 16, NULL, 0);
@@ -220,8 +175,6 @@ int main(){
     arrsetcap(r->remember_graph_info.positions, 256);
     mymemzero(r->remember_graph_info.positions, 256*sizeof(*(r->remember_graph_info.positions)));
     
-    //GenTextureMipmaps(&(r->render_output.texture));
-    
     textbox.text = NULL;
     arrsetcap(textbox.text, 1024*16);
     mymemzero(textbox.text, 1024*16);
@@ -259,18 +212,6 @@ flowchart LR\n\
   \n\
   ";
     }
-  /*
-  %% classDef RED fill:#f00 \n\
-  %% A:::RED --- B:::RED \n\
-  %% OR \n\
-  %% RED: A, B \n\
-  %% A --- B \n\
-  %% OR \n\
-  %% RED: A --- B \n\
-  %%  \n\
-  %%  \n\
-  %%  \n\
-  */
 
     int textlength = TextLength(text);
     for(int i = 0; i < textlength; i++){
@@ -285,9 +226,6 @@ flowchart LR\n\
     // TODO: fix weird layout bug at cursor == 0
     textbox.caret_anchor = 1;
     textbox.caret_current = 1;
-    
-    // int len = arrlen(textbox.text);
-    // TraceLog(LOG_DEBUG, "%d, %d, %d", textbox.text[len-2], textbox.text[len-1], textbox.text[len]);
   }
   
   if(!compile(textbox.text)){
@@ -332,30 +270,12 @@ static void UpdateDraw(){
     }
     state->compile_cd = .4f;
   }
-  
-  /* if (IsFileDropped()){
-    
-    Assert(g->drop_counter < 128);
-    
-    g->last_dropped_files = GetDroppedFiles(&(g->last_dropped_count));
-    memcpy(&(g->filenames[g->drop_counter * MAX_FILEPATH_LENGTH]), (g->last_dropped_files[0]), MAX_FILEPATH_LENGTH); // only copy over the first filename dropped
-    
-    if(CheckCollisionPointRec(GetMousePosition(), textbox.collider)){
-      g->drop_counter++;
-    }
-    
-    ClearDroppedFiles();
-    g->last_dropped_files = 0;
-  } */
-  
-  /* if(IsKeyDown(KEY_LEFT_ALT)){
-    if(IsKeyDown(KEY_Q)){
-      debug_switch = 1;
-    }
-  } */
-
+#if defined(PLATFORM_WEB)
   if(IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT)){
     if(IsKeyPressed(KEY_S)){
+#else
+  if(IsKeyPressed(KEY_F7)){{
+#endif
       state->dark_mode = !(state->dark_mode);
       palette = ((state->dark_mode) ? (dark_mode) : (light_mode));
       r_draw_texture();

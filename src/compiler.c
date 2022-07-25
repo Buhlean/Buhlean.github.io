@@ -42,38 +42,18 @@ static void record_error_into_buffer(const char *error_format_string, ...){
   arrsetlen(r->compiler_errors, buf_len + written);
 }
 
-#define COMPILER_ERRORS_TO_SDTERR 0
-#if COMPILER_ERRORS_TO_SDTERR
-  #define FPRINTF_ERRORS_TO fprintf(stderr,
-#else
-  #define FPRINTF_ERRORS_TO record_error_into_buffer(
-#endif
-
 static void error_at(Token *token, const char *message){
-#if 0
-(
-#endif
-  FPRINTF_ERRORS_TO"[line %d] Error", token->line);
-  
+  record_error_into_buffer("[line %d] Error", token->line);
   if (token->type == TOKEN_EOF){
-#if 0
-(
-#endif
-    FPRINTF_ERRORS_TO" at end");
+    record_error_into_buffer(" at end");
   }
   else if (token->type == TOKEN_ERROR){
     // Nothing
   }
   else {
-#if 0
-(
-#endif
-    FPRINTF_ERRORS_TO" at '%.*s'", token->length, token->start);
+    record_error_into_buffer(" at '%.*s'", token->length, token->start);
   }
-#if 0
-(
-#endif
-  FPRINTF_ERRORS_TO": %s\n", message);
+  record_error_into_buffer(": %s\n", message);
   parser.hadError = true;
 }
 static void error(const char *message){
@@ -82,9 +62,6 @@ static void error(const char *message){
 static void error_at_current(const char *message){
   error_at(&parser.current, message);
 }
-
-#undef COMPILER_ERRORS_TO_SDTERR
-#undef FPRINTF_ERRORS_TO
 
 static void advance(){
   parser.previous = parser.current;
@@ -279,14 +256,6 @@ static void node_plus_maybe_connections(){
       char *new_text_ptr = NULL;
       int bubble_type = BUBBLE_STANDARD;
       { // bubble shape + text
-        /* if(match(TOKEN_DOT)){
-          bubble_type = BUBBLE_BUBBLE;
-          while (!check(TOKEN_DOT)){
-            new_text_ptr= handle_node_text();
-          }
-          consume(TOKEN_DOT, "Expected matching closing '.'.");
-        }
-        else */ 
         if(match(TOKEN_LEFT_PAREN)){
           
           if(match(TOKEN_LEFT_BRACKET)){
@@ -431,7 +400,6 @@ static void node_plus_maybe_connections(){
         arrsetlen(list_B, 0);
       }
 
-
       { // connection types
         conn_type_current = CT_NULL;
         if(match(TOKEN_MINUS)){
@@ -494,7 +462,7 @@ static void node_plus_maybe_connections(){
         if(match(TOKEN_COLON)){
           if(match(TOKEN_COLON)){
             if(match(TOKEN_COLON)){
-              advance(); // TODO class
+              advance(); // TODO: classes
             }
             else error("Expected ':::CLASS_NAME'?");
           }
@@ -568,14 +536,7 @@ static bool compile(const char *source){
   core_compile(source);
   
   r->subgraph_count = current_compiler->subgraph_running_ID;
-  /* 
-  for(int i = 0; i < arrlen(r->bubbles); i++){
-    fprintf(stderr, "Bubble:     '%s'\n", r->bubbles[i].key);
-  }
-  for(int i = 0; i < arrlen(r->connections); i++){
-    fprintf(stderr, "Connection: '%s' --> '%s'\n", r->bubbles[r->connections[i].A_i].key, r->bubbles[r->connections[i].B_i].key);
-  }
-  */
+
   SaveFileText("stored_text.txt", textbox.text);
 
   if(parser.hadError) arrsetlen(r->bubbles, 0); // used as proxy for existing compiler errors

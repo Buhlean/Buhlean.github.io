@@ -19,15 +19,6 @@ static void r_init(){
   r_draw_texture();
 }
 
-/* static void r_init_then_draw(){
-  r_init();
-  r_draw_texture();
-} */
-/* static void r_relax_step_then_draw(){
-  r_relax_step();
-  r_draw_texture();
-} */
-
 static void r_relax_step(){
   
   int bubbles_length = arrlen(r->bubbles);
@@ -38,7 +29,6 @@ static void r_relax_step(){
   
   const float should = 180;
   const float correction = .2f;
-  int g_direction = r->bubbles[0].is_subgraph_plus_direction;
   Vector2 min = {10,10}, max = {width-20 -200, height-20 -100};
   
   // pulling springs

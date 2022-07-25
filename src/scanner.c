@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-//#include <string.h>
 
 enum TOKEN_TYPE{
   // Single-character tokens.
@@ -68,16 +67,6 @@ static char peekNext(){
   if (isAtEnd()) return '\0';
   return scanner.current[1];
 }
-
-/* static bool match(char expected){
-  if (isAtEnd()) return false;
-  if (*scanner.current == expected){
-    scanner.current++;
-    return true;
-  }
-  return false;
-} 
-*/
 
 static Token makeToken(enum TOKEN_TYPE type){
   Token token;
@@ -161,19 +150,6 @@ static Token identifier(){
   return makeToken(identifierType());
 }
 
-/* static Token string(){
-  while (peek() != '"' && !isAtEnd()){
-    if (peek() == '\n') scanner.line++;
-    scanner_advance();
-  }
-
-  if (isAtEnd()) return errorToken("Unterminated string.");
-
-  // '"'
-  scanner_advance();
-  return makeToken(TOKEN_STRING);
-} */
-
 Token scanToken(){
   skipWhitespace();
   scanner.start = scanner.current;
@@ -201,7 +177,6 @@ Token scanToken(){
     case ':': return makeToken(TOKEN_COLON);
     default:  return makeToken(TOKEN_CHAR);
   }
-  //printf("%d = %c\n", c, c);
   return errorToken("Unexpected character");
 }
 
@@ -239,7 +214,6 @@ static void debug_print_token(int type){
     case TOKEN_STYLE         : fprintf(stderr, "TOKEN_STYLE        ");  break;
     case TOKEN_SUBGRAPH      : fprintf(stderr, "TOKEN_SUBGRAPH     ");  break;
     case TOKEN_ERROR         : fprintf(stderr, "TOKEN_ERROR        ");  break;
-    //case TOKEN_EOL           : fprintf(stderr, "TOKEN_EOL          \n");break;
     case TOKEN_EOF           : fprintf(stderr, "TOKEN_EOF          ");  break;
   }
 #endif
