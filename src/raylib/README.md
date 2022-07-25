@@ -1,0 +1,1 @@
+These files are what's needed of raylib for the program to compile on Windows. The compiled static library is included so that the recipient doesn't need to learn about building raylib. It should just compile out of the box.
